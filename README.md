@@ -9,9 +9,14 @@ The reverse shells in this repository are asynchronous just like Cobalt Strikes 
 ### Short description: 
 This reverse shell is based on Windows Registry keys. Windows allows administrators to read, write & delete registry keys on remote systems using the RPC protocol. Using  custom code, it is possible to create a client-server relationsship.  
 
-**Requirements:** The Remote Registry Service needs to be enabled on the server, and the user trying to connect/read/write to the remote registry needs to have the correct permissions.
+**Requirements:** 
+The Remote Registry Service needs to be enabled on the server, and the user trying to connect/read/write to the remote registry needs to have the correct permissions.
 
-**Limitations:** Since the traffic is based on RPC, the shell is suitable for lateral movement on local networks. 
+**Limitations:** 
+Since the traffic is based on RPC, the shell is suitable for lateral movement on local networks. 
+
+**Screenshot:**
+
 
 Win32 apis 
 
