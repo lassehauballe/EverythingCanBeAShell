@@ -7,7 +7,7 @@ The reverse shells in this repository are asynchronous just like Cobalt Strikes 
 ## C2 using Windows registry keys
 
 ### Short description: 
-This reverse shell is based on Windows Registry keys. Windows allows administrators to read, write & delete registry keys on remote systems using the RPC protocol. Using  custom code, it is possible to create a client-server relationsship.  
+This reverse shell is based on Windows Registry keys. Windows allows administrators to read, write & delete registry keys on remote systems using the RPC protocol. Using  custom code, it is possible to create a client-server relationsship by having certain registry keys located on the server that the client can interact with.  
 
 **Requirements:** 
 The Remote Registry Service needs to be enabled on the server, and the user trying to connect/read/write to the remote registry needs to have the correct permissions.
