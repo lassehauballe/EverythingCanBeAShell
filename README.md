@@ -15,6 +15,15 @@ The Remote Registry Service needs to be enabled on the server, and the user tryi
 **Limitations:** 
 Since the traffic is based on RPC, should only be suitable for lateral movement on local networks. 
 
+**Usage:**
+```
+RegC2Server.exe <Unique Registry key name to use>
+RegC2Server.exe ws01
+```
+
+**How it works:**
+When starting the server, the Remote Registry Service is enabled, and the following registry keys are created: cmd, output & sleep. 
+
 ### Screenshot:
 
 
