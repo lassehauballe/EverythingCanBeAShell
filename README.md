@@ -13,7 +13,7 @@ This reverse shell is based on Windows Registry keys. Windows allows administrat
 The Remote Registry Service needs to be enabled on the server, and the user trying to connect/read/write to the remote registry needs to have the correct permissions.
 
 **Limitations:** 
-Since the traffic is based on RPC, the shell is suitable for lateral movement on local networks. 
+Since the traffic is based on RPC, should only be suitable for lateral movement on local networks. 
 
 ### Screenshot:
 
