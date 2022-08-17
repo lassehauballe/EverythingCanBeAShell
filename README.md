@@ -15,7 +15,7 @@ The Remote Registry Service needs to be enabled on the server, and the user tryi
 **Limitations:** 
 Since the traffic is based on RPC, the shell is suitable for lateral movement on local networks. 
 
-**Screenshot:**
+### Screenshot:
 
 
 Win32 apis 
