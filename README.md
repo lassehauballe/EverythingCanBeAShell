@@ -31,8 +31,11 @@ RegC2Client.exe <host> <Registry name to use>
 RegC2Client.exe dc01 ws01
 ```
 
-**How it works:**
-When starting the server, the Remote Registry Service is enabled, and the following registry keys are created: cmd, output & sleep. 
+### How it works:
+When the server starts, the Remote Registry Service is enabled. Then, the registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined name> is created along with the following registry values: cmd, output & sleep. 
+Permissions are then set for the user "Everyone" on the newly created registry key and, importantly, the registry key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. 
+
+This ensures that the client can authenticate to the server and has access to the relevant registry values. On exiting the server, the permissions are removed again. 
 
 ### Screenshot:
 
