@@ -15,7 +15,7 @@ This reverse shell is based on Windows Registry keys. Windows allows for certain
 The Remote Registry Service needs to be enabled on the server, and the user trying to connect/read/write to the remote registry needs to have the correct permissions.
 
 **Limitations:** 
-Since the traffic is based on RPC, should only be suitable for lateral movement on local networks. 
+Since the traffic is based on RPC, it should only be suitable for lateral movement on local networks, however I have not tested it. 
 
 ### Usage:
 **Server (listener):**
@@ -34,11 +34,11 @@ RegC2Client.exe dc01 ws01
 ```
 
 ### How it works:
-When the server starts, the Remote Registry Service is enabled. Then, the registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined name> is created along with the following registry values: cmd, output & sleep. 
-Permissions are then set for the user "Everyone" on the newly created registry key and, importantly, the registry key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. 
-
-This ensures that the client can authenticate to the server and has access to the relevant registry values. On exiting the server, the permissions are removed again. 
-
+1. When the server starts, the Remote Registry Service is enabled. 
+2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined name> is created along with the following registry values: cmd, output & sleep. 
+3. Permissions are then set for the user "Everyone" on the newly created registry key and, importantly, the registry key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that the client can authenticate to the server and has access to the relevant registry values. On exiting the server, the permissions are removed again. 
+4. The client will then check for the value at "sleep" to determine how often to check it. 
+5. The client then checks the 
 ### Screenshot:
 
 
