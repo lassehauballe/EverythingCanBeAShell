@@ -10,7 +10,9 @@ At this moment, the repository only has a C2 using Windows Registry keys, but I 
 
 ## C2 using Windows registry keys
 
-### Short description: 
+[![Demo](https://img.youtube.com/vi/jOPCbK-WF1M/0.jpg)](https://www.youtube.com/watch?v=jOPCbK-WF1M)
+
+### Brief description: 
 This shell is based on Windows Registry keys. Yes, registry keys as in regedit.exe. The idea comes from the fact, that Windows allows for users (with the correct permissions) to read, write and/or delete registry keys and values on remote systems using the WinReg Protocol (MS-RRP). The "protocol" is built on top of the RPC protocol and is described by Microsoft: (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rrp/0fa3191d-bb79-490a-81bd-54c2601b7a78). Using custom code, it is possible to create a client-server-relationsship by having certain registry keys located on the server that the client can interact with.  
 
 **Requirements:** 
@@ -18,6 +20,9 @@ The Remote Registry Service needs to be enabled on the server, and the user tryi
 
 **Limitations:** 
 Since the traffic is based on RPC, it should only really be suitable for lateral movement on local networks, however I have not tested it over the internet. 
+
+**Security considerations:**
+The permissions allows for anyone to connect to the servers registry database. Each registry key is protected by its own SACL, and so the server is only as insecure as the applied permissions on each key. The consequences could be dire :D
 
 ### How it works:
 1. When the server starts, the Remote Registry Service is enabled and started. 
