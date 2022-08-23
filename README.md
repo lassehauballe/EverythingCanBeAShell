@@ -1,7 +1,7 @@
 # Everything Is A Shell... An asyncrounous shell at least...
 
 ## Disclaimer
-The shells are all Proof-of-Concept and have only been tested in my lab. They are made to test the if the shells actually work and nothing else. Enjoy :)
+The shells in this repository are all Proof-of-Concept and have only been tested in my lab. They are made to test if the shells actually work and nothing else. Enjoy :)
 
 ## Concept for this repository
 This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells: Asyncronous. This means that the client (beacon) and server (C2) will not communicate at all times like a standard netcat/meterpreter shell. Instead, the client will check-in for any new commands from the server at a given interval (sleep timer). If a command is found, the client will execute it, and post the result back to the server. The checkin-interval is a sleep timer just like in Cobalt Strike. 
@@ -32,7 +32,7 @@ Since the traffic is based on RPC, it should only be suitable for lateral moveme
 ### Usage:
 **Setup the server on the attackers machine (listener/C2):**
 ``` 
-RegC2Server.exe <Unique Registry key name to use>
+RegC2Server.exe <Registry key name to use with the client>
 RegC2Server.exe victim01
 ```
 **Starting the client on the victim (beacon):**
