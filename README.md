@@ -1,9 +1,10 @@
 # Everything Is A Shell... An asyncrounous shell at least...
 
-This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems. The shells are all PoC's and should only be used as such. They have also only been tested in my own lab. They are made to test the ideas for the shells nothing more. Enjoy :)
+## Disclaimer
+The shells are all PoC's and should only be used as such. They have also only been tested in my own lab. They are made to test the ideas for the shells nothing more. Enjoy :)
 
 ## Concept for this repository
-The shells in this repository are asynchronous just like Cobalt Strikes shells: Asyncronous. This means that the client and server will not communicate at all times like a standard netcat/meterpreter shell. Instead, the client will check-in for any new commands from the server at a given interval (sleep timer). If a command is found, the client will execute it, and post the result back to the server. The checkin-interval is a sleep timer just like in Cobalt Strike. 
+This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells: Asyncronous. This means that the client and server will not communicate at all times like a standard netcat/meterpreter shell. Instead, the client will check-in for any new commands from the server at a given interval (sleep timer). If a command is found, the client will execute it, and post the result back to the server. The checkin-interval is a sleep timer just like in Cobalt Strike. 
 
 At this moment, the repository only has a C2 using Windows Registry keys, but I hope to add more in the future. 
 
