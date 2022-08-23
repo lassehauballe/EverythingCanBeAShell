@@ -1,4 +1,4 @@
-# Everything Is A(n asynchronous) Reverse Shell
+# Everything Is A(n asynchronous reverse) Shell
 
 This repository is made to explore some uncommon ways for establishing command and control (c2) on Microsoft Windows systems. 
 
