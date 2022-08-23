@@ -37,7 +37,7 @@ RegC2Server.exe victim01
 ```
 **Client-side:**
 ```
-RegC2Client.exe <host> <Registry name used to start the server>
+RegC2Client.exe <host> <Registry key name used to start the server>
 RegC2Client.exe ws01 victim01
 ```
 
