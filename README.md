@@ -1,6 +1,6 @@
 # Everything Is A Shell... An asyncrounous shell at least...
 
-This repository is made to explore some uncommon ways for establishing command and control (c2) on Microsoft Windows systems. 
+This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems.  
 
 The reverse shells in this repository are asynchronous just like Cobalt Strikes shells. Asyncronous, meaning that the client and server will not communicate all the time like a standard netcat/meterpreter reverse shell. Instead, the client will check-in for any new commands from the server. If a command is found, it will execute it and post the output back to the server. The checkin-interval is a sleep timer just like Cobalt Strikes. 
 
