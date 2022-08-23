@@ -1,6 +1,4 @@
-# Everything Is A Shell
-
-## Or rather everyhing is an asynchronous shell...
+# Everything Is A Shell... An asyncrounous shell at least...
 
 This repository is made to explore some uncommon ways for establishing command and control (c2) on Microsoft Windows systems. 
 
