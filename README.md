@@ -11,22 +11,22 @@ At this moment, the repository only has a C2 using Windows Registry keys, but I 
 ## C2 using Windows registry keys
 
 ### Short description: 
-This reverse shell is based on Windows Registry keys. Windows allows for specific users to read, write and/or delete registry keys on remote systems using the WinReg Protocol (MS-RRP), which is build on top of the RPC protocol: (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rrp/0fa3191d-bb79-490a-81bd-54c2601b7a78). Using custom code, it is possible to create a client-server-relationsship by having certain registry keys located on the server that the client can interact with.  
+This shell is based on Windows Registry keys. Yes, registry keys as in regedit.exe. The idea comes from the fact, that Windows allows for users (with the correct permissions) to read, write and/or delete registry keys and values on remote systems using the WinReg Protocol (MS-RRP). The "protocol" is built on top of the RPC protocol and is described by Microsoft: (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rrp/0fa3191d-bb79-490a-81bd-54c2601b7a78). Using custom code, it is possible to create a client-server-relationsship by having certain registry keys located on the server that the client can interact with.  
 
 **Requirements:** 
-The Remote Registry Service needs to be enabled on the server, and the user trying to connect/read/write to the remote registry needs to have the correct permissions.
+The Remote Registry Service needs to be enabled on the server, and the user trying to read & write to the remote registry needs to have the correct permissions.
 
 **Limitations:** 
-Since the traffic is based on RPC, it should only be suitable for lateral movement on local networks, however I have not tested it over the internet. 
+Since the traffic is based on RPC, it should only really be suitable for lateral movement on local networks, however I have not tested it over the internet. 
 
 ### How it works:
 1. When the server starts, the Remote Registry Service is enabled and started. 
-2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined> is created along with the following registry values: cmd, output & sleep. 
+2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined> is created along with the following registry values: cmd, output & sleep. Think of this used defined registry key as the port (LHOST).
 3. Permissions are then set for the user "Everyone" on the newly created registry key.
-4. Permissions are then likewise set on the key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that the client any client can authenticate to the server. (N.B. On exiting/closing of the server, these permissions are removed again.) 
-5. The client will then check the C2 server for the value of "sleep" to determine how often to check it. 
-6. The client then executes whatever command found in the "cmd"-value. 
-7. The result of the command is written as a string to the C2's "output" value. 
+4. Permissions are likewise set on the key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that any client can authenticate to the server. (N.B. On exiting/closing of the server, these permissions are removed again.) 
+5. The client will connect to the C2 server using WinReg, and read the newly created registry key for the value of "sleep", to determine how often to check-in. 
+6. When it is time to check-in, the client executes the command found in the "cmd"-value. 
+7. The result of the command is written as a string to the C2's registry keys "output" value. 
 8. While running, the server will look for new updates to the "output" value and prints it back to the attacker.
 
 ### Usage:
