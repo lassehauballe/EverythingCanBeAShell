@@ -3,10 +3,10 @@
 
 ### Disclaimer
 The shells in this repository are all Proof-of-Concept and have only been tested in my own lab. Enjoy :)
-*... Also, at this moment, the repository only contains a single shell using Windows Registry keys. However, I hope to add more in the future. *
+*... Also, at this moment, the repository only contains a single shell based on Windows Registry keys. However, I do hope to add more in the future. *
 
 ### The Concept
-This repository is made to explore untraditional ways of establishing command and control (C2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells. The client (beacon) will check-in at a given interval (sleep-timer) for any new commands from the server (C2). If a command is found, the beacon will execute it and post the result back to the server. 
+This repository is made to explore untraditional ways of establishing command and control (C2) on Microsoft Windows systems and to keep the SOC on its toes. The shells in this repository are asynchronous just like Cobalt Strikes shells. The client (beacon) will check-in at a given interval (sleep-timer) for any new commands from the server (C2). If a command is found, the beacon will execute it and post the result back to the server. 
 
 # Shell 1: C2 using Windows registry keys
 
@@ -23,9 +23,9 @@ The Remote Registry Service needs to be enabled on the server, and the client ne
 Since the traffic is based on RPC and SMB, it should only really be suitable for lateral movement on local networks. 
 
 **Security considerations:**
-The permissions allows for anyone to connect to the servers registry database. Each registry key is protected by its own SACL, and so the server is only as insecure as the applied permissions on each key. The consequences could be dire :D
+The permissions allows for anyone to connect to the servers registry database. Each registry key is protected by its own SACL, and so the server is only as insecure as the applied permissions on other keys. Consequences could potentially be dire :D
 
-## How it works:
+## How it works:  
 1. When the server starts, the Remote Registry Service is enabled and started. 
 2. A registry key HKLM\Software\RegistryC2\\<user-defined> is created along with the following values: cmd, output & sleep. The user-defined registry key is specific to a single beacon and could be compared to setting up a listener.
 3. Read/Write permissions are then set for the user "Everyone" on this newly created registry key.
@@ -97,5 +97,19 @@ The server is being closed and the Registry keys are no longer available.
 </p>
 
 
-### How does it look in Wireshark? 
+## How does it look in Wireshark? 
+Well, it's not pretty. 
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186396507-e940f94e-feea-4e72-b0b7-8041fe696377.png" width=60% height=60%>
+</p>
+  
+<p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186397638-300e0e07-c927-4a96-833f-bcb7499cc8aa.png" width=60% height=60%>
+</p>
+  
+ <p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186397649-2033e1ca-a853-4ab0-a2b2-ef1c55e8c711.png" width=60% height=60%>
+</p>
+  
 
