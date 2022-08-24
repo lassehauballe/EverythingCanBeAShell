@@ -61,15 +61,16 @@ exit             Exit the application gracefully
 
 **Starting the C2 server:**  
 Belov, the server is started with the argument "victim01". The Remote Registry Service is attempted to be started, and the necessary permissions are put in place. The Registry key HKLM\Software\RegistryC2\victim01 is created with its necessary values: cmd, output & sleep. 
-
 <p align="center">
 <img src="https://user-images.githubusercontent.com/35890107/186360543-a9bf7634-ea0d-4a0c-a9e5-4956701e0af3.png" width=60% height=60%>
 </p>
+
 
 Special permissions are set for "Everone" on the Registry key "RegistryC2\victim01".  
 <p align="center">
 <img src="https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png" width=60% height=60%>
 </p>
+
 
 The beacon is started on the victims machine. The beacon has updated its sleep-timer, found the command to execute and posted the result back to the C2-server:
 <p align="center">
@@ -77,12 +78,21 @@ The beacon is started on the victims machine. The beacon has updated its sleep-t
 </p>
 
 
+On the C2-server, the result is being read back to the attacker. 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png" width=60% height=60%>
+</p>
 
-![server_cmd1](https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png)
 
-![server_cmd2](https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png)
+Another command is executed:
+<p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>
+</p>
 
 
-![server_exit](https://user-images.githubusercontent.com/35890107/186360706-dce99907-6027-4bad-abc4-ade26429fe41.png)
+The server is being closed and the Registry keys are no longer available.
+<p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186360706-dce99907-6027-4bad-abc4-ade26429fe41.png" width=60% height=60%>
+</p>
 
 
