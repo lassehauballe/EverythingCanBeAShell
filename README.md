@@ -16,10 +16,7 @@ At this moment, the repository only has a C2 using Windows Registry keys, but I 
 This shell is based on Windows Registry keys. Yes, registry keys as in regedit.exe. The idea comes from the fact, that Windows allows for users (with the correct permissions) to read, write and/or delete registry keys and values on remote systems using the WinReg Protocol (MS-RRP). The "protocol" is built on top of the RPC protocol and is described by Microsoft: (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rrp/0fa3191d-bb79-490a-81bd-54c2601b7a78). Using custom code, it is possible to create a client-server-relationsship by having certain registry keys located on the server that the client can interact with.  
 
 ### Demo:
-<p align="center">
-// Your content
 [![Demo](https://img.youtube.com/vi/jOPCbK-WF1M/0.jpg)](https://www.youtube.com/watch?v=jOPCbK-WF1M)
-</p>
 
 **Requirements:** 
 The Remote Registry Service needs to be enabled on the server, and the user trying to read & write to the remote registry needs to have the correct permissions.
