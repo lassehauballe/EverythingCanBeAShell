@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Microsoft.Win32;
 
 
-namespace RegC2Client
+namespace RegC2Beacon
 {
     internal class Program
     {
@@ -132,7 +132,7 @@ namespace RegC2Client
             if (args.Length != 2)
             {
                 Console.WriteLine("RegC2Client.exe <hostname> <RegistryKey name to use>");
-                Console.WriteLine("RegC2Client.exe ws01 dc01");
+                Console.WriteLine("RegC2Client.exe ws01 victim01");
                 Environment.Exit(0);
             }
             string host = args[0];
