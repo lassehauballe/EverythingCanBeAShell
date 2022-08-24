@@ -94,7 +94,8 @@ Scrolling down, the protocols are switched to DCERPC and WINREG. We also see a "
 <img src="https://user-images.githubusercontent.com/35890107/186397638-300e0e07-c927-4a96-833f-bcb7499cc8aa.png" width=80% height=80%>
 &nbsp;  
 &nbsp;  
-Interestingly, on examining the Winreg protocols QueryValue, we see that all the daya is placed in an "Encrypted stub data" meaning that commands between the C2 and the beacon are encrypted by default, which is quite nice. 
+Interestingly, on examining the Winreg protocols QueryValue, we see that all the data is placed in an "Encrypted stub data" meaning that commands between the C2 and the beacon are encrypted by default, which is quite nice. 
 <img src="https://user-images.githubusercontent.com/35890107/186397649-2033e1ca-a853-4ab0-a2b2-ef1c55e8c711.png" width=80% height=80%>
 
-
+## Conclusion
+Using the WinReg protocol for command and control purposes will undoubtly look unfamiliar to a blue team. On a network where Remote Registry is not used at all, this will definitly stand out; however it might also go completely undetected due to a lag of alerts on this particular protocol. Lastly, it's pretty convenient that the data is encrypted by default making it even more difficult for a blue-team to figure out what has been exfiltrated. Now, such logs could ofc. be found elsewhere. 
