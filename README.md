@@ -69,7 +69,7 @@ Special permissions are set for "Everone" on the Registry key "RegistryC2\victim
   
   
 **Beacon running on client:**  
-The beacon is started on the victims machine. The beacon has updated its sleep-timer, found the command to execute and posted the result back to the C2-server.
+The beacon is started on the victims machine. The beacon has updated its sleep-timer, found the command to execute and posted the result back to the C2-server.  
 <img src="https://user-images.githubusercontent.com/35890107/186356461-715947b2-5926-40fe-9d9f-2264ebe20476.png" width=30% height=30%>
   
   
