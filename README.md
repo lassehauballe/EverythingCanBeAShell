@@ -73,11 +73,11 @@ The beacon is started on the victims machine. The beacon has updated its sleep-t
 &nbsp;  
 &nbsp;  
 **Output is posted back to the server:**  
-<img src="https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png" width=60% height=60%>
+<img src="https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png" width=60% height=60%>  
 &nbsp;  
 &nbsp;  
 **Another command is executed:**  
-<img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>
+<img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>  
 &nbsp;  
 &nbsp;  
 **Exiting server:**  
@@ -90,10 +90,12 @@ Well, it's not pretty. First, protocols are being negotiated using SMB and a con
 <img src="https://user-images.githubusercontent.com/35890107/186396507-e940f94e-feea-4e72-b0b7-8041fe696377.png" width=80% height=80%>
 &nbsp;  
 &nbsp;  
+  
 Scrolling down, the protocols are switched to DCERPC and WINREG. We also see a "QueryValue" request and response. 
 <img src="https://user-images.githubusercontent.com/35890107/186397638-300e0e07-c927-4a96-833f-bcb7499cc8aa.png" width=80% height=80%>
 &nbsp;  
 &nbsp;  
+  
 Interestingly, on examining the Winreg protocols QueryValue, we see that all the data is placed in an "Encrypted stub data" meaning that commands between the C2 and the beacon are encrypted by default, which is quite nice. 
 <img src="https://user-images.githubusercontent.com/35890107/186397649-2033e1ca-a853-4ab0-a2b2-ef1c55e8c711.png" width=80% height=80%>
 
