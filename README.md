@@ -13,17 +13,8 @@ This repository is made to explore untraditional ways of establishing command an
 ## Brief description: 
 This shell is based on Windows Registry keys. Yes, registry keys as in regedit.exe. The idea comes from the fact, that Windows allows for users (with the correct permissions) to read, write and/or delete registry keys and values on remote systems using the WinReg Protocol (MS-RRP). The "protocol" is built on top of the RPC protocol and is described by Microsoft: (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rrp/0fa3191d-bb79-490a-81bd-54c2601b7a78). Using custom code, it is possible to create a client-server-relationsship by having certain registry keys located on the server that the client can interact with.  
 
-**Demonstration:**
+## Demonstration:
 (https://www.youtube.com/watch?v=jOPCbK-WF1M): The C2 server is running on the left while the beacon is on the right
-
-**Requirements:** 
-The Remote Registry Service needs to be enabled on the server, and the client needs to be permitted to make changes to a user-defined registry key.
-
-**Limitations:** 
-Since the traffic is based on RPC and SMB, it should only really be suitable for lateral movement on local networks. 
-
-**Security considerations:**
-The permissions allows for anyone to connect to the servers registry database. Each registry key is protected by its own SACL, and so the server is only as insecure as the applied permissions on other keys. Consequences could potentially be dire :D
 
 ## How it works:  
 1. When the server starts, the Remote Registry Service is enabled and started. 
@@ -101,3 +92,12 @@ Interestingly, on examining the Winreg protocols QueryValue, we see that all the
 
 ## Conclusion
 Using the WinReg protocol for command and control purposes will undoubtly look unfamiliar to a blue team. On a network where Remote Registry is not used at all, this will definitly stand out; however it might also go completely undetected due to a lag of alerts on this particular protocol. Lastly, it's pretty convenient that the data is encrypted by default making it even more difficult for a blue-team to figure out what has been exfiltrated. Now, such logs could ofc. be found elsewhere. 
+
+**Requirements:** 
+The Remote Registry Service needs to be enabled on the server, and the client needs to be permitted to make changes to a user-defined registry key.
+
+**Limitations:** 
+Since the traffic is based on RPC and SMB, it should only really be suitable for lateral movement on local networks. 
+
+**Security considerations:**
+The permissions allows for anyone to connect to the servers registry database. Each registry key is protected by its own SACL, and so the server is only as insecure as the applied permissions on other keys. Consequences could potentially be dire :D
