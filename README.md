@@ -59,51 +59,42 @@ exit             Exit the application gracefully
 ## Screenshots:
 **Starting the server:**  
 Below, the server is started with the argument "victim01". The Remote Registry Service is attempted to be started, and the necessary permissions are put in place. The Registry key HKLM\Software\RegistryC2\victim01 is created with its necessary values: cmd, output & sleep. 
-
 <img src="https://user-images.githubusercontent.com/35890107/186360543-a9bf7634-ea0d-4a0c-a9e5-4956701e0af3.png" width=60% height=60%>
-<pre>  
-  
-</pre>  
+&nbsp;  
+&nbsp;  
 **Permissions are set:**  
 Special permissions are set for "Everone" on the Registry key "RegistryC2\victim01".  
 <img src="https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png" width=60% height=60%>
-<pre>  
-  
-</pre>  
+&nbsp;  
+&nbsp;  
 **Beacon running on client:**  
 The beacon is started on the victims machine. The beacon has updated its sleep-timer, found the command to execute and posted the result back to the C2-server.  
 <img src="https://user-images.githubusercontent.com/35890107/186356461-715947b2-5926-40fe-9d9f-2264ebe20476.png" width=30% height=30%>
-<pre>  
-  
-</pre>  
+&nbsp;  
+&nbsp;  
 **Output is posted back to the server:**  
 <img src="https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png" width=60% height=60%>
-<pre>  
-  
-</pre>  
+&nbsp;  
+&nbsp;  
 **Another command is executed:**  
 <img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>
-<pre>  
-  
-</pre>  
+&nbsp;  
+&nbsp;  
 **Exiting server:**  
 The server is being closed and the Registry keys are no longer available.
 <img src="https://user-images.githubusercontent.com/35890107/186360706-dce99907-6027-4bad-abc4-ade26429fe41.png" width=60% height=60%>
 
 
 ## How does it look in Wireshark? 
-Well, it's not pretty. 
+Well, it's not pretty. First, protocols are being negotiated using SMB and a connection is made for IPC$ followed by a request for "winreg".
+<img src="https://user-images.githubusercontent.com/35890107/186396507-e940f94e-feea-4e72-b0b7-8041fe696377.png" width=80% height=80%>
+&nbsp;  
+&nbsp;
+Scrolling down, the protocols are switched to DCERPC and WINREG. We also see a "QueryValue" request and response. 
+<img src="https://user-images.githubusercontent.com/35890107/186397638-300e0e07-c927-4a96-833f-bcb7499cc8aa.png" width=80% height=80%>
+&nbsp;  
+&nbsp;  
+Interestingly, on examining the Winreg protocols QueryValue, we see that all the daya is placed in an "Encrypted stub data" meaning that commands between the C2 and the beacon are encrypted by default, which is quite nice. 
+<img src="https://user-images.githubusercontent.com/35890107/186397649-2033e1ca-a853-4ab0-a2b2-ef1c55e8c711.png" width=80% height=80%>
 
-<p align="center">
-<img src="https://user-images.githubusercontent.com/35890107/186396507-e940f94e-feea-4e72-b0b7-8041fe696377.png" width=60% height=60%>
-</p>
-  
-<p align="center">
-<img src="https://user-images.githubusercontent.com/35890107/186397638-300e0e07-c927-4a96-833f-bcb7499cc8aa.png" width=60% height=60%>
-</p>
-  
- <p align="center">
-<img src="https://user-images.githubusercontent.com/35890107/186397649-2033e1ca-a853-4ab0-a2b2-ef1c55e8c711.png" width=60% height=60%>
-</p>
-  
 
