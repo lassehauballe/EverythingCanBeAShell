@@ -61,27 +61,30 @@ exit             Exit the application gracefully
 Below, the server is started with the argument "victim01". The Remote Registry Service is attempted to be started, and the necessary permissions are put in place. The Registry key HKLM\Software\RegistryC2\victim01 is created with its necessary values: cmd, output & sleep. 
 
 <img src="https://user-images.githubusercontent.com/35890107/186360543-a9bf7634-ea0d-4a0c-a9e5-4956701e0af3.png" width=60% height=60%>
+<pre>  
   
-  
+</pre>
 **Permissions are set:**  
 Special permissions are set for "Everone" on the Registry key "RegistryC2\victim01".  
 <img src="https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png" width=60% height=60%>
+<pre>  
   
-  
+</pre>
 **Beacon running on client:**  
 The beacon is started on the victims machine. The beacon has updated its sleep-timer, found the command to execute and posted the result back to the C2-server.  
 <img src="https://user-images.githubusercontent.com/35890107/186356461-715947b2-5926-40fe-9d9f-2264ebe20476.png" width=30% height=30%>
+<pre>  
   
-  
+</pre>
 **Output is posted back to the server:**  
 <img src="https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png" width=60% height=60%>
+<pre>  
   
-  
+</pre>
 **Another command is executed:**  
 <img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>
 <pre>  
   
-
 </pre>
 **Exiting server:**  
 The server is being closed and the Registry keys are no longer available.
