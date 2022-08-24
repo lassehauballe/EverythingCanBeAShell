@@ -83,7 +83,7 @@ The beacon is started on the victims machine. The beacon has updated its sleep-t
 <img src="https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png" width=60% height=60%>
 </p>
 
-
+<br/>
 **Another command is executed:**  
 <p align="center">
 <img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>
