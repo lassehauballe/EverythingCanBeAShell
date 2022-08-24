@@ -79,8 +79,10 @@ The beacon is started on the victims machine. The beacon has updated its sleep-t
   
 **Another command is executed:**  
 <img src="https://user-images.githubusercontent.com/35890107/186360670-a328752d-8221-4811-8ae1-0453c211ff03.png" width=60% height=60%>
+<pre>  
   
-  
+
+</pre>
 **Exiting server:**  
 The server is being closed and the Registry keys are no longer available.
 <img src="https://user-images.githubusercontent.com/35890107/186360706-dce99907-6027-4bad-abc4-ade26429fe41.png" width=60% height=60%>
