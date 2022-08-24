@@ -1,10 +1,10 @@
 # Everything Is A Shell... An asyncrounous shell at least...
 
 ## Disclaimer
-The shells in this repository are all Proof-of-Concept and have only been tested in my lab. They are made to test if the shells actually work and nothing else. Enjoy :)
+The shells in this repository are all Proof-of-Concept and have only been tested in my own lab - Enjoy :)
 
 ## Concept for this repository
-This repository is made to explore more untraditional ways for establishing command and control (c2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells: Asyncronous. This means that the client (beacon) and server (C2) will not communicate at all times like a standard netcat/meterpreter shell. Instead, the client will check-in for any new commands from the server at a given interval (sleep timer). If a command is found, the client will execute it, and post the result back to the server. The checkin-interval is a sleep timer just like in Cobalt Strike. 
+This repository is made to explore untraditional ways of establishing command and control (C2) on Microsoft Windows systems. The shells in this repository are asynchronous just like Cobalt Strikes shells. This means that the client (beacon) will check-in at a given interval (sleep-timer) for any new commands from the server (C2). If a command is found, the beacon will execute it and post the result back to the server. 
 
 At this moment, the repository only has a C2 using Windows Registry keys, but I hope to add more in the future. 
 
