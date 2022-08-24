@@ -55,7 +55,7 @@ Below, the server is started with the argument "victim01". The Remote Registry S
 &nbsp;  
 &nbsp;  
 **Permissions are set:**  
-Special permissions are set for "Everone" on the Registry key "RegistryC2\victim01".  
+Special permissions are set for "Everyone" on the Registry key "RegistryC2\victim01".  
 <img src="https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png" width=60% height=60%>
 &nbsp;  
 &nbsp;  
