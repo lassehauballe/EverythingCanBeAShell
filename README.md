@@ -86,10 +86,10 @@ The server is being closed and the Registry keys are no longer available.
 
 
 ## How does it look in Wireshark? 
-Well, it's not pretty. First, protocols are being negotiated using SMB and a connection is made for IPC$ followed by a request for "winreg".
+Well, it's not pretty. First, protocols are being negotiated using SMB and a connection is made for IPC$ followed by a request for "winreg".  
 <img src="https://user-images.githubusercontent.com/35890107/186396507-e940f94e-feea-4e72-b0b7-8041fe696377.png" width=80% height=80%>
 &nbsp;  
-&nbsp;
+&nbsp;  
 Scrolling down, the protocols are switched to DCERPC and WINREG. We also see a "QueryValue" request and response. 
 <img src="https://user-images.githubusercontent.com/35890107/186397638-300e0e07-c927-4a96-833f-bcb7499cc8aa.png" width=80% height=80%>
 &nbsp;  
