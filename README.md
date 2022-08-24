@@ -73,7 +73,7 @@ Special permissions are set for "Everone" on the Registry key "RegistryC2\victim
 
 The beacon is started on the victims machine. The beacon has updated its sleep-timer, found the command to execute and posted the result back to the C2-server:
 <p align="center">
-<img src="https://user-images.githubusercontent.com/35890107/186356461-715947b2-5926-40fe-9d9f-2264ebe20476.png" width=60% height=60%>
+<img src="https://user-images.githubusercontent.com/35890107/186356461-715947b2-5926-40fe-9d9f-2264ebe20476.png" width=30% height=30%>
 </p>
 
 
