@@ -60,15 +60,17 @@ exit             Exit the application gracefully
 ### Screenshots:
 
 **Starting the C2 server:**  
-Here, the server is started with the argument "victim01". The Remote Registry Service is attempted to be started, and the necessary permissions are put in place. The Registry key HKLM\Software\RegistryC2\victim01 is created with its necessary values: cmd, output & sleep. 
+Belov, the server is started with the argument "victim01". The Remote Registry Service is attempted to be started, and the necessary permissions are put in place. The Registry key HKLM\Software\RegistryC2\victim01 is created with its necessary values: cmd, output & sleep. 
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/35890107/186360543-a9bf7634-ea0d-4a0c-a9e5-4956701e0af3.png" width=60% height=60%>
 </p>
 
-![server_start](https://user-images.githubusercontent.com/35890107/186360543-a9bf7634-ea0d-4a0c-a9e5-4956701e0af3.png)
+Special permissions are set for "Everone" on the Registry key "RegistryC2\victim01". 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png" width=60% height=60%>
+</p>
 
-![server_registry](https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png)
 
 ![server_cmd1](https://user-images.githubusercontent.com/35890107/186360638-91884a40-eaa8-4169-a148-95d14b26b894.png)
 
