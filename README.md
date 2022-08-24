@@ -1,7 +1,6 @@
 # Everything Can Be A Shell... An asynchronous shell at least...
 
 
-
 ## Disclaimer
 The shells in this repository are all Proof-of-Concept and have only been tested in my own lab. Enjoy :)
 *... Also, at this moment, the repository only contains a single shell using Windows Registry keys. However, I hope to add more in the future. *
@@ -60,6 +59,8 @@ exit             Exit the application gracefully
 
 ### Screenshots:
 
+**Starting the C2 server:**
+Here, the server is started with the argument "victim01". The Remote Registry Service is attempted to be started, and the necessary permissions are put in place. The Registry key HKLM\Software\RegistryC2\victim01 is created with its necessary values: cmd, output & sleep. 
 ![server_start](https://user-images.githubusercontent.com/35890107/186360543-a9bf7634-ea0d-4a0c-a9e5-4956701e0af3.png)
 
 ![server_registry](https://user-images.githubusercontent.com/35890107/186360608-0ac3a430-912b-4a19-824d-3cfdedb5201b.png)
