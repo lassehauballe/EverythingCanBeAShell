@@ -6,7 +6,7 @@ The shells in this repository are all Proof-of-Concept and have only been tested
 
 *Also, at this moment, the repository only contains a single shell based on Windows Registry keys. However, I do hope to add more in the future.*  
 
-### The Concept
+### Concept
 This repository is made to explore untraditional ways of establishing command and control (C2) on Microsoft Windows systems and to keep the SOC on its toes. The shells in this repository are asynchronous just like Cobalt Strikes shells. The client (beacon) will check-in at a given interval (sleep-timer) for any new commands from the server (C2). If a command is found, the beacon will execute it and post the result back to the server. 
 
 # Shell 1: C2 using Windows registry keys
