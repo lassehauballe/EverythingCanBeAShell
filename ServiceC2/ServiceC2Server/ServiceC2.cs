@@ -54,7 +54,7 @@ namespace ServiceC2Server
         public IntPtr CreateService()
         {
             Console.WriteLine("[*] Trying to Create a new service called: " + name);
-            schService = CreateServiceA(schSCManager, name, "30", 0xF003F, 0x00000010, 0x00000004, 0x00000000, "whoami", null, null, null, null, null);
+            schService = CreateServiceA(schSCManager, name, "30", 0xF003F, 0x00000010, 0x00000004, 0x00000000, "Ready", null, null, null, null, null);
             if (schService == IntPtr.Zero)
             {
                 Console.WriteLine("[-] Failed to create service... Closing down");
