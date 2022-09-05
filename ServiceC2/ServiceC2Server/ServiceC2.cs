@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ServiceC2Server
 {
@@ -19,8 +16,8 @@ namespace ServiceC2Server
         public ServiceC2(string name)
         {
             this.name = name;
-            this.SchSCManager = IntPtr.Zero;
-            this.schService = IntPtr.Zero;
+            SchSCManager = IntPtr.Zero;
+            schService = IntPtr.Zero;
         }
 
         public string Name { get => name; set => name = value; }
@@ -53,7 +50,7 @@ namespace ServiceC2Server
 
         public IntPtr CreateService()
         {
-            Console.WriteLine("[*] Trying to Create a new service called: " + name);
+            Console.WriteLine("[*] Trying to create a new service called: " + name);
             schService = CreateServiceA(schSCManager, name, "30", 0xF003F, 0x00000010, 0x00000004, 0x00000000, "Ready", null, null, null, null, null);
             if (schService == IntPtr.Zero)
             {
@@ -67,6 +64,9 @@ namespace ServiceC2Server
         public void Shutdown(bool ctrlc)
         {
             Console.WriteLine("[+] Closing down...");
+
+            Program.PostOutput(this, "Exit");
+
             bool success = DeleteService(schService);
             if (success)
             {
