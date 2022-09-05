@@ -13,6 +13,6 @@ This shell is based on Windows Registry keys. Yes, registry keys as in regedit.e
 For more information: [RegistryKeyC2](https://github.com/lassehauballe/EverythingCanBeAShell/blob/master/RegistryKeyC2/README.md)
 
 # Shell 2: C2 Using Windows Service Manager
-The next shell is based on the Windows Service Manager. Users can remotely login to other computers Service Manager, and can thus change description, display name, start/stop service etc. The protocol used is "Service Conrol Manager Remote Protocol" (MS-SCMR) based on RPC and SMB (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/705b624a-13de-43cc-b8a2-99573da3635f). 
+The next shell is based on the Windows Service Manager. Users can remotely login to other computers Service Manager, and can thus change description, display name, start/stop service etc. The protocol used is "Service Control Manager Remote Protocol" (MS-SCMR) based on RPC and SMB (https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/705b624a-13de-43cc-b8a2-99573da3635f). 
 
 For more information: [ServiceC2](#)
